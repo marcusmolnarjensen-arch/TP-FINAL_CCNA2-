@@ -424,7 +424,7 @@ R1(config)# interface FastEthernet1/1<br>
 R1(config-if)# no shutdown<br>
 R1(config-if)# end<br>
 <br>
-------------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
 <br>
 RAPPORT COURT — CDC 1 : ROUTAGE EIGRP<br>
 <br>
@@ -442,116 +442,103 @@ Pour prouver que le réseau est résilient, on a coupé l'interface principale v
 - Le nuage est simulé par une Loopback0 sur R5, parce que le TP est fait à distance du réseau de la classe.<br>
 - Le câblage réel de R3 est inversé par rapport au dessin GNS3 (vérifié avec CDP) R2 Fa1/0 ↔ R3 Fa1/0 (lien 2), R3 Fa0/0 ↔ R4 Fa1/0 (lien 3). Les adresses de R3 suivent le câblage réel.<br>
 
-
-Bloc A<br>
-<br>
-b) Un protocole IP numéro 88<br>
-b) Même numéro de système autonome<br>
-b) 90<br>
-a) Bande passante et délai<br>
-c) 224.0.0.10<br>
-a) La route est faisable (feasible successor)<br>
-b) Calculer les routes sans boucle et sans route de secours inutile<br>
-b) show ip eigrp neighbors<br>
-a) 5 secondes<br>
-b) 15 secondes<br>
-b) Elle arrête l'envoi des hellos sur l'interface, tout en continuant à annoncer le réseau<br>
-b) Désactivée par défaut<br>
-b) variance<br>
-a) Le chemin à plus petit coût total composé de bande passante et de délai<br>
-a) show ip protocols<br>
-c) 2<br>
-b) Externe<br>
-b) Feasibility condition / faisable distance<br>
-a) Elle permet un basculement immédiat sans recalcul complet<br>
-a) show ip eigrp topology<br>
-c) OSPF<br>
-a) 1<br>
-a) Le vecteur de distance ne connaît pas toute la topologie, l'état de lien la connaît<br>
-a) router-id<br>
-a) Pour vérifier que la convergence fonctionne et que le trafic est réacheminé<br>
-Bloc B<br>
-<br>
-b) HDLC<br>
-a) PPP<br>
-a) Le signal d'horloge<br>
-a) Relier le réseau interne aux réseaux externes<br>
-b) TCP<br>
-a) Une étiquette (label)<br>
-b) Elle permet de simuler une liaison opérateur avec un débit et une horloge contrôlés<br>
-a) QoS<br>
-b) 1 500 octets<br>
-a) Pour absorber l'en-tête supplémentaire du tunnel sans fragmentation<br>
-Bloc C<br>
-<br>
-a) Négocier et établir un canal sécurisé de gestion (ISAKMP SA)<br>
-a) Négocier les SA qui protégeront le trafic de données<br>
-b) ESP<br>
-b) AH<br>
-b) 50<br>
-b) 500<br>
-b) 4500<br>
-a) En mode tunnel, le paquet IP complet est chiffré dans un nouveau paquet<br>
-a) Définir les algorithmes de chiffrement et d'authentification de la SA de phase 2<br>
-a) Renouveler une clé de session indépendamment des précédentes<br>
-c) AES<br>
-b) MD5<br>
-a) 3 600 secondes<br>
-a) À une interface<br>
-a) Même politique ISAKMP, clés pré-partagées ou certificats compatibles, et trafic intéressant défini<br>
-a) Le trafic dont la source et la destination sont définies dans une ACL pour être chiffré<br>
-b) show crypto ipsec sa<br>
-a) Moins d'échanges et une meilleure robustesse<br>
-a) L'ACL définissant le trafic intéressant est incorrecte<br>
-a) Pour sécuriser les échanges entre les sites tout en gardant une politique centralisée<br>
-Bloc D<br>
-<br>
-a) Dynamic Multipoint VPN<br>
-b) NHRP<br>
-a) Serveur NHRP et point central de connexion des spokes<br>
-a) mGRE (multipoint GRE)<br>
-a) 47<br>
-a) Il permet de relier plusieurs pairs sur une seule interface de tunnel<br>
-a) NHRP redirect et shortcut<br>
-a) Tout le trafic spoke-to-spoke passe par le hub<br>
-a) ip nhrp network-id<br>
-a) Associer l'adresse IP du tunnel à l'adresse NBMA (IP publique ou de transport)<br>
-a) NBMA est l'adresse de transport, tunnel IP est l'adresse logique du tunnel<br>
-a) Pour chiffrer les paquets GRE<br>
-a) Configurer le spoke avec l'adresse du hub et l'enregistrer auprès du hub<br>
-a) EIGRP ou BGP<br>
-a) show ip nhrp<br>
-a) Il empêche le routeur d'annoncer une route apprise sur la même interface<br>
-a) Il évite de configurer manuellement chaque tunnel entre chaque couple de sites<br>
-a) Le hub est un point central de signalisation, le spoke initie les tunnels vers le hub<br>
-a) L'adresse NBMA du hub, le ip nhrp nhs et la connectivité de transport<br>
-a) Indiquer au spoke l'adresse NHRP du serveur (hub)<br>
-Bloc E<br>
-<br>
-a) 179<br>
-a) 20<br>
-c) 200<br>
-a) LOCAL_PREF<br>
-a) Le chemin le plus court est préféré<br>
-a) AS_PATH prepend<br>
-a) 100<br>
-a) LOCAL_PREF<br>
-a) Remplacer le prochain saut par l'adresse du routeur qui annonce<br>
-a) Annoncer un préfixe présent dans la table de routage locale<br>
-a) show ip bgp summary<br>
-a) Le routeur rejette la route pour éviter une boucle<br>
-a) Suggérer au voisin par quel point d'entrée il doit envoyer le trafic<br>
-a) Weight (propre à Cisco)<br>
-a) Éviter la nécessité d'un maillage complet de sessions iBGP<br>
-a) Pour garantir la stabilité de la session même si une interface physique tombe<br>
-a) Accepter ou refuser certaines routes annoncées ou reçues<br>
-a) 1<br>
-a) Vérifier l'état de la session et détecter une panne<br>
-a) Il peut attirer du trafic non désiré et exposer le réseau interne<br>
-Bloc F<br>
-<br>
-a) OMP<br>
-a) Étendre des réseaux de niveau 2 sur un réseau de niveau 3<br>
-a) 4789<br>
-a) Un DMVPN ou une architecture SD-WAN avec contrôleur centralisé<br>
-a) Vérifier la connectivité de base, la couche physique et les voisinages avant d'analyser les protocoles<br>
+1. b) Un protocole IP numéro 88<br>
+2. b) Même numéro de système autonome<br>
+3. b) 90<br>
+4. a) Bande passante et délai<br>
+5. c) 224.0.0.10<br>
+6. a) La route est faisable (feasible successor)<br>
+7. b) Calculer les routes sans boucle et sans route de secours inutile<br>
+8. b) show ip eigrp neighbors<br>
+9. a) 5 secondes<br>
+10. b) 15 secondes<br>
+11. b) Elle arrête l'envoi des hellos sur l'interface, tout en continuant à annoncer le réseau<br>
+12. b) Désactivée par défaut<br>
+13. b) variance<br>
+14. a) Le chemin à plus petit coût total composé de bande passante et de délai<br>
+15. a) show ip protocols<br>
+16. c) 2<br>
+17. b) Externe<br>
+18. b) Feasibility condition / faisable distance<br>
+19. a) Elle permet un basculement immédiat sans recalcul complet<br>
+20. a) show ip eigrp topology<br>
+21. c) OSPF<br>
+22. a) 1<br>
+23. a) Le vecteur de distance ne connaît pas toute la topologie, l'état de lien la connaît<br>
+24. a) router-id<br>
+25. a) Pour vérifier que la convergence fonctionne et que le trafic est réacheminé<br>
+26. b) HDLC<br>
+27. a) PPP<br>
+28. a) Le signal d'horloge<br>
+29. a) Relier le réseau interne aux réseaux externes<br>
+30. b) TCP<br>
+31. a) Une étiquette (label)<br>
+32. b) Elle permet de simuler une liaison opérateur avec un débit et une horloge contrôlés<br>
+33. a) QoS<br>
+34. b) 1 500 octets<br>
+35. a) Pour absorber l'en-tête supplémentaire du tunnel sans fragmentation<br>
+36. a) Négocier et établir un canal sécurisé de gestion (ISAKMP SA)<br>
+37. a) Négocier les SA qui protégeront le trafic de données<br>
+38. b) ESP<br>
+39. b) AH<br>
+40. b) 50<br>
+41. b) 500<br>
+42. b) 4500<br>
+43. a) En mode tunnel, le paquet IP complet est chiffré dans un nouveau paquet<br>
+44. a) Définir les algorithmes de chiffrement et d'authentification de la SA de phase 2<br>
+45. a) Renouveler une clé de session indépendamment des précédentes<br>
+46. c) AES<br>
+47. b) MD5<br>
+48. a) 3 600 secondes<br>
+49. a) À une interface<br>
+50. a) Même politique ISAKMP, clés pré-partagées ou certificats compatibles, et trafic intéressant défini<br>
+51. a) Le trafic dont la source et la destination sont définies dans une ACL pour être chiffré<br>
+52. b) show crypto ipsec sa<br>
+53. a) Moins d'échanges et une meilleure robustesse<br>
+54. a) L'ACL définissant le trafic intéressant est incorrecte<br>
+55. a) Pour sécuriser les échanges entre les sites tout en gardant une politique centralisée<br>
+56. a) Dynamic Multipoint VPN<br>
+57. b) NHRP<br>
+58. a) Serveur NHRP et point central de connexion des spokes<br>
+59. a) mGRE (multipoint GRE)<br>
+60. a) 47<br>
+61. a) Il permet de relier plusieurs pairs sur une seule interface de tunnel<br>
+62. a) NHRP redirect et shortcut<br>
+63. a) Tout le trafic spoke-to-spoke passe par le hub<br>
+64. a) ip nhrp network-id<br>
+65. a) Associer l'adresse IP du tunnel à l'adresse NBMA (IP publique ou de transport)<br>
+66. a) NBMA est l'adresse de transport, tunnel IP est l'adresse logique du tunnel<br>
+67. a) Pour chiffrer les paquets GRE<br>
+68. a) Configurer le spoke avec l'adresse du hub et l'enregistrer auprès du hub<br>
+69. a) EIGRP ou BGP<br>
+70. a) show ip nhrp<br>
+71. a) Il empêche le routeur d'annoncer une route apprise sur la même interface<br>
+72. a) Il évite de configurer manuellement chaque tunnel entre chaque couple de sites<br>
+73. a) Le hub est un point central de signalisation, le spoke initie les tunnels vers le hub<br>
+74. a) L'adresse NBMA du hub, le ip nhrp nhs et la connectivité de transport<br>
+75. a) Indiquer au spoke l'adresse NHRP du serveur (hub)<br>
+76. a) 179<br>
+77. a) 20<br>
+78. c) 200<br>
+79. a) LOCAL_PREF<br>
+80. a) Le chemin le plus court est préféré<br>
+81. a) AS_PATH prepend<br>
+82. a) 100<br>
+83. a) LOCAL_PREF<br>
+84. a) Remplacer le prochain saut par l'adresse du routeur qui annonce<br>
+85. a) Annoncer un préfixe présent dans la table de routage locale<br>
+86. a) show ip bgp summary<br>
+87. a) Le routeur rejette la route pour éviter une boucle<br>
+88. a) Suggérer au voisin par quel point d'entrée il doit envoyer le trafic<br>
+89. a) Weight (propre à Cisco)<br>
+90. a) Éviter la nécessité d'un maillage complet de sessions iBGP<br>
+91. a) Pour garantir la stabilité de la session même si une interface physique tombe<br>
+92. a) Accepter ou refuser certaines routes annoncées ou reçues<br>
+93. a) 1<br>
+94. a) Vérifier l'état de la session et détecter une panne<br>
+95. a) Il peut attirer du trafic non désiré et exposer le réseau interne<br>
+96. a) OMP<br>
+97. a) Étendre des réseaux de niveau 2 sur un réseau de niveau 3<br>
+98. a) 4789<br>
+99. a) Un DMVPN ou une architecture SD-WAN avec contrôleur centralisé<br>
+100. a) Vérifier la connectivité de base, la couche physique et les voisinages avant d'analyser les protocoles<br>
