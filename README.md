@@ -374,28 +374,184 @@ PC1> ping 192.168.7.10<br>
 84 bytes from 192.168.7.10 icmp_seq=5 ttl=61 time=90.687 ms<br>
 <br>
 PC1> ping 10.40.10.1<br>
-84 bytes from 10.40.10.1 icmp_seq=1 ttl=254 time=45.645 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=2 ttl=254 time=46.946 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=3 ttl=254 time=45.738 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=4 ttl=254 time=45.763 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=5 ttl=254 time=46.588 ms<br>
+84 bytes from 10.40.10.1 icmp_seq=1 ttl=251 time=137.660 ms<br>
+84 bytes from 10.40.10.1 icmp_seq=2 ttl=251 time=139.687 ms<br>
+84 bytes from 10.40.10.1 icmp_seq=3 ttl=251 time=137.761 ms<br>
+84 bytes from 10.40.10.1 icmp_seq=4 ttl=251 time=135.553 ms<br>
+84 bytes from 10.40.10.1 icmp_seq=5 ttl=251 time=137.235 ms<br>
 (Le VPCS affiche toujours PC1 : dans ses messages, y compris pour PC2.)<br>
 <br>
-Analyse<br>
-- R1 est voisin de R2 (Fa1/0), R4 (Se2/0) et R5 (Fa1/1), les trois routeurs auxquels il est relié.<br>
-- Tous les réseaux du plan d'adressage sont présents sur R1 : les réseaux connectés (192.168.0.0/24, 192.168.1.0/31, 192.168.4.0/31, 192.168.5.0/31) et les routes EIGRP 192.168.2.0, 192.168.3.0, 192.168.6.0, 192.168.7.0 et 10.40.10.0.<br>
-- Chemin PC1 → PC2 : il passe par R5 (R1 Fa1/1 → R5 → R4), avec la métrique 33280. Le TTL de 61 correspond à 3 routeurs traversés (R1, R5, R4). Tous les liens sont en FastEthernet : le chemin par R2 et R3 coûte plus cher (4 interfaces de délai 100 µs contre 3), et la liaison série (1544 kbit/s) reste la dernière option.<br>
-- Métrique EIGRP par défaut : 256 x (10^7 / bande passante minimale en kbit/s + somme des délais en dizaines de µs). Pour 192.168.7.0 via R5 : 256 x (100 + 30) = 33280.<br>
-- 10.40.10.0 est appris avec la métrique 156160 : le délai de la loopback est plus élevé que celui d'une FastEthernet.<br>
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
+<br>
+TEST DE BASCULE (FAILOVER) DE LA LIAISON R1 ↔ R5<br>
+<br>
+1. État avant la coupure (vérification de la route active sur R1) :<br>
+R1# show ip route 192.168.7.0<br>
+Routing entry for 192.168.7.0/24<br>
+  Known via "eigrp 100", distance 90, metric 33280, type internal<br>
+  * 192.168.5.1, from 192.168.5.1, via FastEthernet1/1<br>
+<br>
+2. Simulation de la coupure de l'interface principale sur R1 :<br>
+R1# configure terminal<br>
+R1(config)# interface FastEthernet1/1<br>
+R1(config-if)# shutdown<br>
+R1(config-if)# end<br>
+<br>
+3. Vérification de la table de routage après reconvergence DUAL (R1) :<br>
+R1# show ip route 192.168.7.0<br>
+Routing entry for 192.168.7.0/24<br>
+  Known via "eigrp 100", distance 90, metric 35840, type internal<br>
+  * 192.168.1.1, from 192.168.1.1, via FastEthernet1/0<br>
+<br>
+4. Vérification de la table de voisinage EIGRP après coupure :<br>
+R1# show ip eigrp neighbors<br>
+EIGRP-IPv4 Neighbors for AS(100)<br>
+H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq<br>
+1   192.168.4.1             Se2/0                    10 00:11:50   36   216  0  27<br>
+0   192.168.1.1             Fa1/0                    14 00:12:09   39   234  0  22<br>
+<br>
+5. Test de continuité pendant le failover (depuis PC1) :<br>
+PC1> ping 192.168.7.10 -t<br>
+192.168.7.10 icmp_seq=1 timeout<br>
+192.168.7.10 icmp_seq=2 timeout<br>
+84 bytes from 192.168.7.10 icmp_seq=3 ttl=61 time=93.687 ms<br>
+84 bytes from 192.168.7.10 icmp_seq=4 ttl=61 time=93.796 ms<br>
+... (le trafic est réacheminé automatiquement via R2 après la convergence DUAL)<br>
+<br>
+6. Rétablissement de la liaison principale :<br>
+R1# configure terminal<br>
+R1(config)# interface FastEthernet1/1<br>
+R1(config-if)# no shutdown<br>
+R1(config-if)# end<br>
+<br>
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
+<br>
+RAPPORT COURT — CDC 1 : ROUTAGE EIGRP<br>
+<br>
+1. Pourquoi ce chemin (VPC1 → VPC2) ?<br>
+Le trafic entre le siège (VPC1) et l'entrepôt (VPC2) passe par R5 (R1 → R5 → R4) tout simplement parce que c'est le chemin le plus rapide calculé par EIGRP. Les liens sont en FastEthernet et il y a moins de sauts qu'en passant par le haut (R2-R3) ou par la liaison série.<br>
+<br>
+2. Simulation du nuage<br>
+Comme on est à distance et qu'on n'a pas le vrai réseau de l'école branché physiquement, on a simulé le nuage `10.40.10.0/24` en créant une interface Loopback0 sur R5 (`10.40.10.1`). EIGRP s'occupe de l'annoncer aux autres routeurs, du coup tout le monde y accède sans qu'on ait besoin de mettre de routes statiques.<br>
+<br>
+3. Test de bascule (Failover)<br>
+Pour prouver que le réseau est résilient, on a coupé l'interface principale vers R5 (`shutdown` sur R1). EIGRP a vu que le lien était mort et a basculé automatiquement le trafic sur l'autre route en 2-3 secondes. Dès qu'on a remis le lien (`no shutdown`), c'est revenu tout seul sans casser le réseau.<br>
 <br>
 Écarts assumés par rapport au schéma<br>
-- Les liens 1 à 3 sont en FastEthernet et non en GigabitEthernet : le lab n'a pas de carte Giga.<br>
+- Les liens 1 à 3 sont en FastEthernet et non en GigabitEthernet<br>
 - Le nuage est simulé par une Loopback0 sur R5, parce que le TP est fait à distance du réseau de la classe.<br>
-- Le câblage réel de R3 est inversé par rapport au dessin GNS3 (vérifié avec CDP) : R2 Fa1/0 ↔ R3 Fa1/0 (lien 2), R3 Fa0/0 ↔ R4 Fa1/0 (lien 3). Les adresses de R3 suivent le câblage réel.<br>
-<br>
-Reste à faire<br>
-- Table de routage complète de R1 (show ip route, avec les routes connectées).<br>
-- Test de bascule : coupure d'un lien, table avant et après, ping pendant la coupure.<br>
-- Export des configurations finales des 5 routeurs (show running-config).<br>
-- Rapport d'une page.<br>
+- Le câblage réel de R3 est inversé par rapport au dessin GNS3 (vérifié avec CDP) R2 Fa1/0 ↔ R3 Fa1/0 (lien 2), R3 Fa0/0 ↔ R4 Fa1/0 (lien 3). Les adresses de R3 suivent le câblage réel.<br>
 
+
+Bloc A<br>
+<br>
+b) Un protocole IP numéro 88<br>
+b) Même numéro de système autonome<br>
+b) 90<br>
+a) Bande passante et délai<br>
+c) 224.0.0.10<br>
+a) La route est faisable (feasible successor)<br>
+b) Calculer les routes sans boucle et sans route de secours inutile<br>
+b) show ip eigrp neighbors<br>
+a) 5 secondes<br>
+b) 15 secondes<br>
+b) Elle arrête l'envoi des hellos sur l'interface, tout en continuant à annoncer le réseau<br>
+b) Désactivée par défaut<br>
+b) variance<br>
+a) Le chemin à plus petit coût total composé de bande passante et de délai<br>
+a) show ip protocols<br>
+c) 2<br>
+b) Externe<br>
+b) Feasibility condition / faisable distance<br>
+a) Elle permet un basculement immédiat sans recalcul complet<br>
+a) show ip eigrp topology<br>
+c) OSPF<br>
+a) 1<br>
+a) Le vecteur de distance ne connaît pas toute la topologie, l'état de lien la connaît<br>
+a) router-id<br>
+a) Pour vérifier que la convergence fonctionne et que le trafic est réacheminé<br>
+Bloc B<br>
+<br>
+b) HDLC<br>
+a) PPP<br>
+a) Le signal d'horloge<br>
+a) Relier le réseau interne aux réseaux externes<br>
+b) TCP<br>
+a) Une étiquette (label)<br>
+b) Elle permet de simuler une liaison opérateur avec un débit et une horloge contrôlés<br>
+a) QoS<br>
+b) 1 500 octets<br>
+a) Pour absorber l'en-tête supplémentaire du tunnel sans fragmentation<br>
+Bloc C<br>
+<br>
+a) Négocier et établir un canal sécurisé de gestion (ISAKMP SA)<br>
+a) Négocier les SA qui protégeront le trafic de données<br>
+b) ESP<br>
+b) AH<br>
+b) 50<br>
+b) 500<br>
+b) 4500<br>
+a) En mode tunnel, le paquet IP complet est chiffré dans un nouveau paquet<br>
+a) Définir les algorithmes de chiffrement et d'authentification de la SA de phase 2<br>
+a) Renouveler une clé de session indépendamment des précédentes<br>
+c) AES<br>
+b) MD5<br>
+a) 3 600 secondes<br>
+a) À une interface<br>
+a) Même politique ISAKMP, clés pré-partagées ou certificats compatibles, et trafic intéressant défini<br>
+a) Le trafic dont la source et la destination sont définies dans une ACL pour être chiffré<br>
+b) show crypto ipsec sa<br>
+a) Moins d'échanges et une meilleure robustesse<br>
+a) L'ACL définissant le trafic intéressant est incorrecte<br>
+a) Pour sécuriser les échanges entre les sites tout en gardant une politique centralisée<br>
+Bloc D<br>
+<br>
+a) Dynamic Multipoint VPN<br>
+b) NHRP<br>
+a) Serveur NHRP et point central de connexion des spokes<br>
+a) mGRE (multipoint GRE)<br>
+a) 47<br>
+a) Il permet de relier plusieurs pairs sur une seule interface de tunnel<br>
+a) NHRP redirect et shortcut<br>
+a) Tout le trafic spoke-to-spoke passe par le hub<br>
+a) ip nhrp network-id<br>
+a) Associer l'adresse IP du tunnel à l'adresse NBMA (IP publique ou de transport)<br>
+a) NBMA est l'adresse de transport, tunnel IP est l'adresse logique du tunnel<br>
+a) Pour chiffrer les paquets GRE<br>
+a) Configurer le spoke avec l'adresse du hub et l'enregistrer auprès du hub<br>
+a) EIGRP ou BGP<br>
+a) show ip nhrp<br>
+a) Il empêche le routeur d'annoncer une route apprise sur la même interface<br>
+a) Il évite de configurer manuellement chaque tunnel entre chaque couple de sites<br>
+a) Le hub est un point central de signalisation, le spoke initie les tunnels vers le hub<br>
+a) L'adresse NBMA du hub, le ip nhrp nhs et la connectivité de transport<br>
+a) Indiquer au spoke l'adresse NHRP du serveur (hub)<br>
+Bloc E<br>
+<br>
+a) 179<br>
+a) 20<br>
+c) 200<br>
+a) LOCAL_PREF<br>
+a) Le chemin le plus court est préféré<br>
+a) AS_PATH prepend<br>
+a) 100<br>
+a) LOCAL_PREF<br>
+a) Remplacer le prochain saut par l'adresse du routeur qui annonce<br>
+a) Annoncer un préfixe présent dans la table de routage locale<br>
+a) show ip bgp summary<br>
+a) Le routeur rejette la route pour éviter une boucle<br>
+a) Suggérer au voisin par quel point d'entrée il doit envoyer le trafic<br>
+a) Weight (propre à Cisco)<br>
+a) Éviter la nécessité d'un maillage complet de sessions iBGP<br>
+a) Pour garantir la stabilité de la session même si une interface physique tombe<br>
+a) Accepter ou refuser certaines routes annoncées ou reçues<br>
+a) 1<br>
+a) Vérifier l'état de la session et détecter une panne<br>
+a) Il peut attirer du trafic non désiré et exposer le réseau interne<br>
+Bloc F<br>
+<br>
+a) OMP<br>
+a) Étendre des réseaux de niveau 2 sur un réseau de niveau 3<br>
+a) 4789<br>
+a) Un DMVPN ou une architecture SD-WAN avec contrôleur centralisé<br>
+a) Vérifier la connectivité de base, la couche physique et les voisinages avant d'analyser les protocoles<br>
