@@ -1,6 +1,3 @@
-# TP-FINAL_CCNA2-
-tout d'abord j'ai mis en place la topologie
-<img width="1197" height="543" alt="image" src="https://github.com/user-attachments/assets/3b7899be-117a-4326-ace2-93281f6ec303" />
 # TP-FINAL_CCNA2-<br>
 tout d'abord j'ai mis en place la topologie<br>
 <img width="1197" height="543" alt="image" src="https://github.com/user-attachments/assets/3b7899be-117a-4326-ace2-93281f6ec303" /><br>
