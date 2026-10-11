@@ -9,76 +9,76 @@ tout d'abord j'ai mis en place la topologie
 
 mise en place des routeurs
 R1:
-R1#enable
-R1#configure terminal
-Enter configuration commands, one per line.  End with CNTL/Z.
-R1(config)#interface FastEthernet0/0
-R1(config-if)# description LAN siege vers PC1
-R1(config-if)# ip address 192.168.0.1 255.255.255.0
-R1(config-if)# no shutdown
-R1(config-if)#interface FastEthernet1/0
-R1(config-if)# description Lien1 vers R2 Fa0/0
-R1(config-if)# ip address 192.168.1.0 255.255.255.254
-R1(config-if)# no shutdown
-R1(config-if)#interface Serial2/0
-R1(config-if)# description Lien4 serie vers R4 Se3/0
-R1(config-if)# ip address 192.168.4.0 255.255.255.254
-R1(config-if)# no shutdown
-R1(config-if)#interface FastEthernet1/1
-R1(config-if)# description Lien5 vers R5 Fa0/0
-R1(config-if)# ip address 192.168.5.0 255.255.255.254
-R1(config-if)# no shutdown
-R1(config-if)#end
-R1#write memory
-Warning: Attempting to overwrite an NVRAM configuration previously written
-by a different version of the system image.
-Overwrite the previous NVRAM configuration?[confirm]
-*Oct 11 20:28:48.079: %SYS-5-CONFIG_I: Configured from console by console
-[confirm]
-Building configuration...
-
-*Oct 11 20:28:49.419: %LINK-3-UPDOWN: Interface FastEthernet0/0, changed state to up
-*Oct 11 20:28:49.615: %LINK-3-UPDOWN: Interface FastEthernet1/0, changed state to up
-*Oct 11 20:28:49.787: %LINK-3-UPDOWN: Interface Serial2/0, changed state to up
-*Oct 11 20:28:49.995: %LINK-3-UPDOWN: Interface FastEthernet1/1, changed state to up
-*Oct 11 20:28:50.419: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up[OK]
-R1#
-*Oct 11 20:28:50.615: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/0, changed state to up
-*Oct 11 20:28:50.795: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to up
-*Oct 11 20:28:50.995: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/1, changed state  upto
-R1#
-*Oct 11 20:29:11.623: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to down
-
-verification:
-R1#show ip interface brief
-Interface              IP-Address      OK? Method Status                Protocol
-FastEthernet0/0        192.168.0.1     YES manual up                    up
-FastEthernet1/0        192.168.1.0     YES manual up                    up
-FastEthernet1/1        192.168.5.0     YES manual up                    up
-Serial2/0              192.168.4.0     YES manual up                    up
-Serial2/1              unassigned      YES unset  administratively down down
-Serial2/2              unassigned      YES unset  administratively down down
-Serial2/3              unassigned      YES unset  administratively down down
-GigabitEthernet6/0     unassigned      YES unset  administratively down down
-
-R1#ping 192.168.1.1
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 192.168.1.1, timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 28/32/40 ms
-R1#
-R1#ping 192.168.4.1
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 192.168.4.1, timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 20/28/40 ms
-R1#
-R1#ping 192.168.5.1
-Type escape sequence to abort.
-Sending 5, 100-byte ICMP Echos to 192.168.5.1, timeout is 2 seconds:
-!!!!!
-Success rate is 100 percent (5/5), round-trip min/avg/max = 20/26/32 ms
-R1#
+R1#enable<br>
+R1#configure terminal<br>
+Enter configuration commands, one per line.  End with CNTL/Z.<br>
+R1(config)#interface FastEthernet0/0<br>
+R1(config-if)# description LAN siege vers PC1<br>
+R1(config-if)# ip address 192.168.0.1 255.255.255.0<br>
+R1(config-if)# no shutdown<br>
+R1(config-if)#interface FastEthernet1/0<br>
+R1(config-if)# description Lien1 vers R2 Fa0/0<br>
+R1(config-if)# ip address 192.168.1.0 255.255.255.254<br>
+R1(config-if)# no shutdown<br>
+R1(config-if)#interface Serial2/0<br>
+R1(config-if)# description Lien4 serie vers R4 Se3/0<br>
+R1(config-if)# ip address 192.168.4.0 255.255.255.254<br>
+R1(config-if)# no shutdown<br>
+R1(config-if)#interface FastEthernet1/1<br>
+R1(config-if)# description Lien5 vers R5 Fa0/0<br>
+R1(config-if)# ip address 192.168.5.0 255.255.255.254<br>
+R1(config-if)# no shutdown<br>
+R1(config-if)#end<br>
+R1#write memory<br>
+Warning: Attempting to overwrite an NVRAM configuration previously written<br>
+by a different version of the system image.<br>
+Overwrite the previous NVRAM configuration?[confirm]<br>
+*Oct 11 20:28:48.079: %SYS-5-CONFIG_I: Configured from console by console<br>
+[confirm]<br>
+Building configuration...<br>
+<br>
+*Oct 11 20:28:49.419: %LINK-3-UPDOWN: Interface FastEthernet0/0, changed state to up<br>
+*Oct 11 20:28:49.615: %LINK-3-UPDOWN: Interface FastEthernet1/0, changed state to up<br>
+*Oct 11 20:28:49.787: %LINK-3-UPDOWN: Interface Serial2/0, changed state to up<br>
+*Oct 11 20:28:49.995: %LINK-3-UPDOWN: Interface FastEthernet1/1, changed state to up<br>
+*Oct 11 20:28:50.419: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up[OK]<br>
+R1#<br>
+*Oct 11 20:28:50.615: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/0, changed state to up<br>
+*Oct 11 20:28:50.795: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to up<br>
+*Oct 11 20:28:50.995: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/1, changed state  upto<br>
+R1#<br>
+*Oct 11 20:29:11.623: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to down<br>
+<br>
+verification:<br>
+R1#show ip interface brief<br>
+Interface              IP-Address      OK? Method Status                Protocol<br>
+FastEthernet0/0        192.168.0.1     YES manual up                    up<br>
+FastEthernet1/0        192.168.1.0     YES manual up                    up<br>
+FastEthernet1/1        192.168.5.0     YES manual up                    up<br>
+Serial2/0              192.168.4.0     YES manual up                    up<br>
+Serial2/1              unassigned      YES unset  administratively down down<br>
+Serial2/2              unassigned      YES unset  administratively down down<br>
+Serial2/3              unassigned      YES unset  administratively down down<br>
+GigabitEthernet6/0     unassigned      YES unset  administratively down down<br>
+<br>
+R1#ping 192.168.1.1<br>
+Type escape sequence to abort.<br>
+Sending 5, 100-byte ICMP Echos to 192.168.1.1, timeout is 2 seconds:<br>
+!!!!!<br>
+Success rate is 100 percent (5/5), round-trip min/avg/max = 28/32/40 ms<br>
+R1#<br>
+R1#ping 192.168.4.1<br>
+Type escape sequence to abort.<br>
+Sending 5, 100-byte ICMP Echos to 192.168.4.1, timeout is 2 seconds:<br>
+!!!!!<br>
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/28/40 ms<br>
+R1#<br>
+R1#ping 192.168.5.1<br>
+Type escape sequence to abort.<br>
+Sending 5, 100-byte ICMP Echos to 192.168.5.1, timeout is 2 seconds:<br>
+!!!!!<br>
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/26/32 ms<br>
+R1#<br>
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 R2:
