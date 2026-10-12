@@ -1,447 +1,325 @@
 # TP-FINAL_CCNA2-<br>
 tout d'abord j'ai mis en place la topologie<br>
 <img width="1197" height="543" alt="image" src="https://github.com/user-attachments/assets/3b7899be-117a-4326-ace2-93281f6ec303" /><br>
-## Étape 1 — Inventaire (lecture seule)<br>
-- GNS3 2.2.61, 5 routeurs c7200 (NPE-400), IOS 15.2S7<br>
-- Configs vierges : hostname seul, aucune IP, aucun routage<br>
-- Câblage conforme au schéma sauf : liens 1-3 en FastEthernet, Cloud non branché<br>
-<br>
-mise en place des routeurs<br>
-R1:<br>
-R1#enable<br>
-R1#configure terminal<br>
-Enter configuration commands, one per line.  End with CNTL/Z.<br>
-R1(config)#interface FastEthernet0/0<br>
-R1(config-if)# description LAN siege vers PC1<br>
-R1(config-if)# ip address 192.168.0.1 255.255.255.0<br>
-R1(config-if)# no shutdown<br>
-R1(config-if)#interface FastEthernet1/0<br>
-R1(config-if)# description Lien1 vers R2 Fa0/0<br>
-R1(config-if)# ip address 192.168.1.0 255.255.255.254<br>
-R1(config-if)# no shutdown<br>
-R1(config-if)#interface Serial2/0<br>
-R1(config-if)# description Lien4 serie vers R4 Se3/0<br>
-R1(config-if)# ip address 192.168.4.0 255.255.255.254<br>
-R1(config-if)# no shutdown<br>
-R1(config-if)#interface FastEthernet1/1<br>
-R1(config-if)# description Lien5 vers R5 Fa0/0<br>
-R1(config-if)# ip address 192.168.5.0 255.255.255.254<br>
-R1(config-if)# no shutdown<br>
-R1(config-if)#end<br>
-R1#write memory<br>
-Warning: Attempting to overwrite an NVRAM configuration previously written<br>
-by a different version of the system image.<br>
-Overwrite the previous NVRAM configuration?[confirm]<br>
-*Oct 11 20:28:48.079: %SYS-5-CONFIG_I: Configured from console by console<br>
-[confirm]<br>
-Building configuration...<br>
-<br>
-*Oct 11 20:28:49.419: %LINK-3-UPDOWN: Interface FastEthernet0/0, changed state to up<br>
-*Oct 11 20:28:49.615: %LINK-3-UPDOWN: Interface FastEthernet1/0, changed state to up<br>
-*Oct 11 20:28:49.787: %LINK-3-UPDOWN: Interface Serial2/0, changed state to up<br>
-*Oct 11 20:28:49.995: %LINK-3-UPDOWN: Interface FastEthernet1/1, changed state to up<br>
-*Oct 11 20:28:50.419: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up[OK]<br>
-R1#<br>
-*Oct 11 20:28:50.615: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/0, changed state to up<br>
-*Oct 11 20:28:50.795: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to up<br>
-*Oct 11 20:28:50.995: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/1, changed state  upto<br>
-R1#<br>
-*Oct 11 20:29:11.623: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial2/0, changed state to down<br>
-<br>
-verification:<br>
-R1#show ip interface brief<br>
-Interface             IP-Address      OK? Method Status                Protocol<br>
-FastEthernet0/0       192.168.0.1     YES manual up                    up<br>
-FastEthernet1/0       192.168.1.0     YES manual up                    up<br>
-FastEthernet1/1       192.168.5.0     YES manual up                    up<br>
-Serial2/0             192.168.4.0     YES manual up                    up<br>
-Serial2/1             unassigned      YES unset  administratively down down<br>
-Serial2/2             unassigned      YES unset  administratively down down<br>
-Serial2/3             unassigned      YES unset  administratively down down<br>
-GigabitEthernet6/0    unassigned      YES unset  administratively down down<br>
-<br>
-R1#ping 192.168.1.1<br>
-Type escape sequence to abort.<br>
-Sending 5, 100-byte ICMP Echos to 192.168.1.1, timeout is 2 seconds:<br>
-!!!!!<br>
-Success rate is 100 percent (5/5), round-trip min/avg/max = 28/32/40 ms<br>
-R1#<br>
-R1#ping 192.168.4.1<br>
-Type escape sequence to abort.<br>
-Sending 5, 100-byte ICMP Echos to 192.168.4.1, timeout is 2 seconds:<br>
-!!!!!<br>
-Success rate is 100 percent (5/5), round-trip min/avg/max = 20/28/40 ms<br>
-R1#<br>
-R1#ping 192.168.5.1<br>
-Type escape sequence to abort.<br>
-Sending 5, 100-byte ICMP Echos to 192.168.5.1, timeout is 2 seconds:<br>
-!!!!!<br>
-Success rate is 100 percent (5/5), round-trip min/avg/max = 20/26/32 ms<br>
-R1#<br>
-<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
-R2:<br>
-R2#enable<br>
-R2#configure terminal<br>
-Enter configuration commands, one per line.  End with CNTL/Z.<br>
-R2(config)#interface FastEthernet0/0<br>
-R2(config-if)# description Lien1 vers R1 Fa1/0<br>
-R2(config-if)# ip address 192.168.1.1 255.255.255.254<br>
-R2(config-if)# no shutdown<br>
-R2(config-if)#interface FastEthernet1/0<br>
-R2(config-if)# description Lien2 vers R3 Fa1/0<br>
-R2(config-if)# ip address 192.168.2.0 255.255.255.254<br>
-R2(config-if)# no shutdown<br>
-R2(config-if)#end<br>
-R2#write memory<br>
-*Oct 11 20:31:00.631: %SYS-5-CONFIG_I: Configured from console by console<br>
-R2#write memory<br>
-Warning: Attempting to overwrite an NVRAM configuration previously written<br>
-by a different version of the system image.<br>
-Overwrite the previous NVRAM configuration?[confirm]<br>
-Building configuration...<br>
-[OK]<br>
-R2#<br>
-*Oct 11 20:31:02.399: %LINK-3-UPDOWN: Interface FastEthernet0/0, changed state to up<br>
-*Oct 11 20:31:02.555: %LINK-3-UPDOWN: Interface FastEthernet1/0, changed state to up<br>
-*Oct 11 20:31:03.435: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up<br>
-*Oct 11 20:31:03.627: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/0, changed state to up<br>
-<br>
-verification:<br>
-R2#show ip interface brief<br>
-Interface             IP-Address      OK? Method Status                Protocol<br>
-FastEthernet0/0       192.168.1.1     YES manual up                    up<br>
-FastEthernet1/0       192.168.2.0     YES manual up                    up<br>
-<br>
-R2#ping 192.168.2.1<br>
-Type escape sequence to abort.<br>
-Sending 5, 100-byte ICMP Echos to 192.168.2.1, timeout is 2 seconds:<br>
-!!!!!<br>
-Success rate is 100 percent (5/5), round-trip min/avg/max = 20/27/32 ms<br>
-<br>
-R2#configure terminal<br>
-Enter configuration commands, one per line.  End with CNTL/Z.<br>
-R2(config)#interface FastEthernet1/0<br>
-R2(config-if)# description Lien2 vers R3 Fa1/0<br>
-R2(config-if)#end<br>
-<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
-R3#configure terminal<br>
-Enter configuration commands, one per line.  End with CNTL/Z.<br>
-R3(config)#interface FastEthernet0/0<br>
-R3(config-if)# no ip address<br>
-R3(config-if)#interface FastEthernet1/0<br>
-R3(config-if)# no ip address<br>
-R3(config-if)#interface FastEthernet0/0<br>
-R3(config-if)# description Lien3 vers R4 Fa1/0<br>
-R3(config-if)# ip address 192.168.3.0 255.255.255.254<br>
-R3(config-if)#interface FastEthernet1/0<br>
-R3(config-if)# description Lien2 vers R2 Fa1/0<br>
-R3(config-if)# ip address 192.168.2.1 255.255.255.254<br>
-R3(config-if)#end<br>
-R3#<br>
-<br>
-verification:<br>
-R3#show ip interface brief<br>
-Interface             IP-Address      OK? Method Status                Protocol<br>
-FastEthernet0/0       192.168.2.1     YES manual up                    up<br>
-FastEthernet1/0       192.168.3.0     YES manual up                    up<br>
-<br>
-R3#ping 192.168.3.1<br>
-Type escape sequence to abort.<br>
-Sending 5, 100-byte ICMP Echos to 192.168.3.1, timeout is 2 seconds:<br>
-!!!!!<br>
-Success rate is 100 percent (5/5), round-trip min/avg/max = 20/28/44 ms<br>
-R3#<br>
-R3#show startup-config | include description|ip address<br>
- description Lien3 vers R4 Fa1/0<br>
- ip address 192.168.3.0 255.255.255.254<br>
- description Lien2 vers R2 Fa1/0<br>
- ip address 192.168.2.1 255.255.255.254<br>
-R3#<br>
-<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
-R4:<br>
-R4#enable<br>
-R4#configure terminal<br>
-Enter configuration commands, one per line.  End with CNTL/Z.<br>
-R4(config)#interface FastEthernet1/0<br>
-R4(config-if)# description Lien3 vers R3 Fa1/0<br>
-R4(config-if)# ip address 192.168.3.1 255.255.255.254<br>
-R4(config-if)# no shutdown<br>
-R4(config-if)#interface Serial3/0<br>
-R4(config-if)# description Lien4 serie vers R1 Se2/0<br>
-R4(config-if)# ip address 192.168.4.1 255.255.255.254<br>
-R4(config-if)# no shutdown<br>
-R4(config-if)#interface FastEthernet0/0<br>
-R4(config-if)# description Lien6 vers R5 Fa1/0<br>
-R4(config-if)# ip address 192.168.6.1 255.255.255.254<br>
-R4(config-if)# no shutdown<br>
-R4(config-if)#interface FastEthernet2/0<br>
-R4(config-if)# description LAN entrepot vers PC2<br>
-R4(config-if)# ip address 192.168.7.1 255.255.255.0<br>
-R4(config-if)# no shutdown<br>
-R4(config-if)#end<br>
-R4#write memory<br>
-Warning: Attempting to overwrite an NVRAM configuration previously written<br>
-by a different version of the system image.<br>
-Overwrite the previous NVRAM configuration?[confirm]<br>
-*Oct 11 20:32:14.667: %SYS-5-CONFIG_I: Configured from console by console<br>
-[confirm]<br>
-Building configuration...<br>
-[OK]<br>
-R4#<br>
-*Oct 11 20:32:16.083: %LINK-3-UPDOWN: Interface FastEthernet1/0, changed state to up<br>
-*Oct 11 20:32:16.267: %LINK-3-UPDOWN: Interface Serial3/0, changed state to up<br>
-*Oct 11 20:32:16.407: %LINK-3-UPDOWN: Interface FastEthernet0/0, changed state to up<br>
-*Oct 11 20:32:16.603: %LINK-3-UPDOWN: Interface FastEthernet2/0, changed state to up<br>
-*Oct 11 20:32:17.659: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/0, changed state to up<br>
-*Oct 11 20:32:17.663: %LINEPROTO-5-UPDOWN: Line protocol on Interface Serial3/0, changed state to up<br>
-*Oct 11 20:32:17.667: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up<br>
-*Oct 11 20:32:17.671: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet2/0, changed state to up<br>
-<br>
-verification:<br>
-R4#show ip interface brief<br>
-Interface             IP-Address      OK? Method Status                Protocol<br>
-FastEthernet0/0       192.168.6.1     YES manual up                    up<br>
-FastEthernet1/0       192.168.3.1     YES manual up                    up<br>
-FastEthernet2/0       192.168.7.1     YES manual up                    up<br>
-Serial3/0             192.168.4.1     YES manual up                    up<br>
-Serial3/1             unassigned      YES unset  administratively down down<br>
-Serial3/2             unassigned      YES unset  administratively down down<br>
-Serial3/3             unassigned      YES unset  administratively down down<br>
-<br>
-R4#configure terminal<br>
-Enter configuration commands, one per line.  End with CNTL/Z.<br>
-R4(config)#interface FastEthernet1/0<br>
-R4(config-if)# description Lien3 vers R3 Fa0/0<br>
-R4(config-if)#end<br>
-<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
-R5:<br>
-R5#enable<br>
-R5#configure terminal<br>
-Enter configuration commands, one per line.  End with CNTL/Z.<br>
-R5(config)#interface FastEthernet0/0<br>
-R5(config-if)# description Lien5 vers R1 Fa1/1<br>
-R5(config-if)# ip address 192.168.5.1 255.255.255.254<br>
-R5(config-if)# no shutdown<br>
-R5(config-if)#interface FastEthernet1/0<br>
-R5(config-if)# description Lien6 vers R4 Fa0/0<br>
-R5(config-if)# ip address 192.168.6.0 255.255.255.254<br>
-R5(config-if)# no shutdown<br>
-R5(config-if)#end<br>
-R5#write memory<br>
-Warning: Attempting to overwrite an NVRAM configuration previously written<br>
-by a different version of the system image.<br>
-Overwrite the previous NVRAM configuration?[confirm]<br>
-*Oct 11 20:32:53.411: %SYS-5-CONFIG_I: Configured from console by console<br>
-[confirm]<br>
-Building configuration...<br>
-[OK]<br>
-R5#<br>
-*Oct 11 20:32:55.131: %LINK-3-UPDOWN: Interface FastEthernet0/0, changed state to up<br>
-*Oct 11 20:32:55.311: %LINK-3-UPDOWN: Interface FastEthernet1/0, changed state to up<br>
-*Oct 11 20:32:56.187: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet0/0, changed state to up<br>
-R5#<br>
-*Oct 11 20:32:56.311: %LINEPROTO-5-UPDOWN: Line protocol on Interface FastEthernet1/0, changed state to up<br>
-R5#<br>
-<br>
-verification:<br>
-R5#show ip interface brief<br>
-Interface             IP-Address      OK? Method Status                Protocol<br>
-FastEthernet0/0       192.168.5.1     YES manual up                    up<br>
-FastEthernet1/0       192.168.6.0     YES manual up                    up<br>
-FastEthernet2/0       unassigned      YES unset  administratively down down<br>
-Serial3/0             unassigned      YES unset  administratively down down<br>
-Serial3/1             unassigned      YES unset  administratively down down<br>
-Serial3/2             unassigned      YES unset  administratively down down<br>
-Serial3/3             unassigned      YES unset  administratively down down<br>
-<br>
-R5#ping 192.168.6.1<br>
-Type escape sequence to abort.<br>
-Sending 5, 100-byte ICMP Echos to 192.168.6.1, timeout is 2 seconds:<br>
-!!!!!<br>
-Success rate is 100 percent (5/5), round-trip min/avg/max = 20/27/36 ms<br>
-<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
-<br>
-MISE EN PLACE DU NUAGE / RÉSEAU SIMULÉ<br>
-<br>
-Nuage simulé (Loopback sur R5)<br>
-Le TP est réalisé à distance du réseau de la classe : le nuage 10.40.10.1 est simulé par une interface Loopback0 sur R5, qui joue le rôle de passerelle.<br>
-<br>
-R5#configure terminal<br>
-R5(config)#interface Loopback0<br>
-R5(config-if)# description Nuage simule 10.40.10.1<br>
-R5(config-if)# ip address 10.40.10.1 255.255.255.0<br>
-R5(config-if)# no shutdown<br>
-R5(config-if)#exit<br>
-<br>
-Configuration EIGRP (AS 100)<br>
-network active EIGRP sur les interfaces dont l'adresse est dans la plage (wildcard 0.0.0.1 pour un /31, 0.0.0.255 pour un /24). passive-interface protège les interfaces qui ne doivent former aucun voisinage (LAN et loopback) : leur réseau est quand même annoncé.<br>
-<br>
-R1:<br>
-router eigrp 100<br>
- network 192.168.0.0 0.0.0.255<br>
- network 192.168.1.0 0.0.0.1<br>
- network 192.168.4.0 0.0.0.1<br>
- network 192.168.5.0 0.0.0.1<br>
- no auto-summary<br>
- passive-interface FastEthernet0/0<br>
-<br>
-R2:<br>
-router eigrp 100<br>
- network 192.168.1.0 0.0.0.1<br>
- network 192.168.2.0 0.0.0.1<br>
- no auto-summary<br>
-<br>
-R3:<br>
-router eigrp 100<br>
- network 192.168.2.0 0.0.0.1<br>
- network 192.168.3.0 0.0.0.1<br>
- no auto-summary<br>
-<br>
-R4:<br>
-router eigrp 100<br>
- network 192.168.3.0 0.0.0.1<br>
- network 192.168.4.0 0.0.0.1<br>
- network 192.168.6.0 0.0.0.1<br>
- network 192.168.7.0 0.0.0.255<br>
- no auto-summary<br>
- passive-interface FastEthernet2/0<br>
-<br>
-R5:<br>
-router eigrp 100<br>
- network 192.168.5.0 0.0.0.1<br>
- network 192.168.6.0 0.0.0.1<br>
- network 10.40.10.0 0.0.0.255<br>
- no auto-summary<br>
- passive-interface Loopback0<br>
-<br>
-Configuration sauvegardée sur chaque routeur (write memory).<br>
-PC1 et PC2 (consoles VPCS) :<br>
-<br>
-PC1> ip 192.168.0.10/24 192.168.0.1<br>
-PC2> ip 192.168.7.10/24 192.168.7.1<br>
-<br>
-Preuves<br>
-Voisinages EIGRP : messages d'adjacence (R2 à R5)<br>
-<br>
-R2: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.1.0 (FastEthernet0/0) is up: new adjacency<br>
-R2: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.2.1 (FastEthernet1/0) is up: new adjacency<br>
-R3: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.2.0 (FastEthernet1/0) is up: new adjacency<br>
-R3: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.3.1 (FastEthernet0/0) is up: new adjacency<br>
-R4: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.4.0 (Serial3/0) is up: new adjacency<br>
-R4: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.3.0 (FastEthernet1/0) is up: new adjacency<br>
-R4: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.6.0 (FastEthernet0/0) is up: new adjacency<br>
-R5: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.5.0 (FastEthernet0/0) is up: new adjacency<br>
-R5: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.6.1 (FastEthernet1/0) is up: new adjacency<br>
-<br>
-Table de voisinage de R1<br>
-<br>
-R1#show ip eigrp neighbors<br>
-EIGRP-IPv4 Neighbors for AS(100)<br>
-H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq<br>
-                                                   (sec)         (ms)       Cnt Num<br>
-2   192.168.5.1             Fa1/1                    14 00:03:02   43   258  0  5<br>
-1   192.168.4.1             Se2/0                    11 00:03:14   41   246  0  14<br>
-0   192.168.1.1             Fa1/0                    12 00:03:33   36   216  0  14<br>
-<br>
-Routes EIGRP apprises par R1<br>
-<br>
-R1#show ip route eigrp<br>
-Gateway of last resort is not set<br>
-<br>
-      10.0.0.0/24 is subnetted, 1 subnets<br>
-D        10.40.10.0 [90/156160] via 192.168.5.1, 00:03:14, FastEthernet1/1<br>
-      192.168.2.0/31 is subnetted, 1 subnets<br>
-D        192.168.2.0 [90/30720] via 192.168.1.1, 00:03:31, FastEthernet1/0<br>
-      192.168.3.0/31 is subnetted, 1 subnets<br>
-D        192.168.3.0 [90/33280] via 192.168.5.1, 00:03:14, FastEthernet1/1<br>
-                     [90/33280] via 192.168.1.1, 00:03:14, FastEthernet1/0<br>
-      192.168.6.0/31 is subnetted, 1 subnets<br>
-D        192.168.6.0 [90/30720] via 192.168.5.1, 00:03:19, FastEthernet1/1<br>
-D     192.168.7.0/24 [90/33280] via 192.168.5.1, 00:03:14, FastEthernet1/1<br>
-<br>
-Pings depuis PC1<br>
-<br>
-PC1> ping 192.168.7.10<br>
-84 bytes from 192.168.7.10 icmp_seq=1 ttl=61 time=105.360 ms<br>
-84 bytes from 192.168.7.10 icmp_seq=2 ttl=61 time=91.795 ms<br>
-84 bytes from 192.168.7.10 icmp_seq=3 ttl=61 time=108.698 ms<br>
-84 bytes from 192.168.7.10 icmp_seq=4 ttl=61 time=93.575 ms<br>
-84 bytes from 192.168.7.10 icmp_seq=5 ttl=61 time=90.687 ms<br>
-<br>
-PC1> ping 10.40.10.1<br>
-84 bytes from 10.40.10.1 icmp_seq=1 ttl=251 time=137.660 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=2 ttl=251 time=139.687 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=3 ttl=251 time=137.761 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=4 ttl=251 time=135.553 ms<br>
-84 bytes from 10.40.10.1 icmp_seq=5 ttl=251 time=137.235 ms<br>
-(Le VPCS affiche toujours PC1 : dans ses messages, y compris pour PC2.)<br>
-<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
-<br>
-TEST DE BASCULE (FAILOVER) DE LA LIAISON R1 ↔ R5<br>
-<br>
-1. État avant la coupure (vérification de la route active sur R1) :<br>
-R1# show ip route 192.168.7.0<br>
-Routing entry for 192.168.7.0/24<br>
-  Known via "eigrp 100", distance 90, metric 33280, type internal<br>
-  * 192.168.5.1, from 192.168.5.1, via FastEthernet1/1<br>
-<br>
-2. Simulation de la coupure de l'interface principale sur R1 :<br>
-R1# configure terminal<br>
-R1(config)# interface FastEthernet1/1<br>
-R1(config-if)# shutdown<br>
-R1(config-if)# end<br>
-<br>
-3. Vérification de la table de routage après reconvergence DUAL (R1) :<br>
-R1# show ip route 192.168.7.0<br>
-Routing entry for 192.168.7.0/24<br>
-  Known via "eigrp 100", distance 90, metric 35840, type internal<br>
-  * 192.168.1.1, from 192.168.1.1, via FastEthernet1/0<br>
-<br>
-4. Vérification de la table de voisinage EIGRP après coupure :<br>
-R1# show ip eigrp neighbors<br>
-EIGRP-IPv4 Neighbors for AS(100)<br>
-H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq<br>
-1   192.168.4.1             Se2/0                    10 00:11:50   36   216  0  27<br>
-0   192.168.1.1             Fa1/0                    14 00:12:09   39   234  0  22<br>
-<br>
-5. Test de continuité pendant le failover (depuis PC1) :<br>
-PC1> ping 192.168.7.10 -t<br>
-192.168.7.10 icmp_seq=1 timeout<br>
-192.168.7.10 icmp_seq=2 timeout<br>
-84 bytes from 192.168.7.10 icmp_seq=3 ttl=61 time=93.687 ms<br>
-84 bytes from 192.168.7.10 icmp_seq=4 ttl=61 time=93.796 ms<br>
-... (le trafic est réacheminé automatiquement via R2 après la convergence DUAL)<br>
-<br>
-6. Rétablissement de la liaison principale :<br>
-R1# configure terminal<br>
-R1(config)# interface FastEthernet1/1<br>
-R1(config-if)# no shutdown<br>
-R1(config-if)# end<br>
-<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
-<br>
-RAPPORT COURT — CDC 1 : ROUTAGE EIGRP<br>
-<br>
-1. Pourquoi ce chemin (VPC1 → VPC2) ?<br>
-Le trafic entre le siège (VPC1) et l'entrepôt (VPC2) passe par R5 (R1 → R5 → R4) tout simplement parce que c'est le chemin le plus rapide calculé par EIGRP. Les liens sont en FastEthernet et il y a moins de sauts qu'en passant par le haut (R2-R3) ou par la liaison série.<br>
-<br>
-2. Simulation du nuage<br>
-Comme on est à distance et qu'on n'a pas le vrai réseau de l'école branché physiquement, on a simulé le nuage `10.40.10.0/24` en créant une interface Loopback0 sur R5 (`10.40.10.1`). EIGRP s'occupe de l'annoncer aux autres routeurs, du coup tout le monde y accède sans qu'on ait besoin de mettre de routes statiques.<br>
-<br>
-3. Test de bascule (Failover)<br>
-Pour prouver que le réseau est résilient, on a coupé l'interface principale vers R5 (`shutdown` sur R1). EIGRP a vu que le lien était mort et a basculé automatiquement le trafic sur l'autre route en 2-3 secondes. Dès qu'on a remis le lien (`no shutdown`), c'est revenu tout seul sans casser le réseau.<br>
-<br>
-Écarts assumés par rapport au schéma<br>
-- Les liens 1 à 3 sont en FastEthernet et non en GigabitEthernet<br>
-- Le nuage est simulé par une Loopback0 sur R5, parce que le TP est fait à distance du réseau de la classe.<br>
-- Le câblage réel de R3 est inversé par rapport au dessin GNS3 (vérifié avec CDP) R2 Fa1/0 ↔ R3 Fa1/0 (lien 2), R3 Fa0/0 ↔ R4 Fa1/0 (lien 3). Les adresses de R3 suivent le câblage réel.<br>
------------------------------------------------------------------------------------------------------------------------------------------------------------------<br>
+## Étape 1 — Inventaire (Lecture seule)
+
+* **Plateforme :** GNS3 2.2.61, 5 routeurs c7200 (NPE-400), IOS 15.2S7
+* **État initial :** Configurations vierges (hostname seul, aucune IP, aucun routage)
+* **Câblage :** Conforme au schéma, sauf :
+  * Liens 1 à 3 en FastEthernet au lieu de GigabitEthernet.
+  * Nuage externe non branché physiquement.
+
+---
+
+## 1. Mise en place des Routeurs
+
+### R1
+R1#enable
+R1#configure terminal
+R1(config)#interface FastEthernet0/0
+R1(config-if)# description LAN siege vers PC1
+R1(config-if)# ip address 192.168.0.1 255.255.255.0
+R1(config-if)# no shutdown
+R1(config-if)#interface FastEthernet1/0
+R1(config-if)# description Lien1 vers R2 Fa0/0
+R1(config-if)# ip address 192.168.1.0 255.255.255.254
+R1(config-if)# no shutdown
+R1(config-if)#interface Serial2/0
+R1(config-if)# description Lien4 serie vers R4 Se3/0
+R1(config-if)# ip address 192.168.4.0 255.255.255.254
+R1(config-if)# no shutdown
+R1(config-if)#interface FastEthernet1/1
+R1(config-if)# description Lien5 vers R5 Fa0/0
+R1(config-if)# ip address 192.168.5.0 255.255.255.254
+R1(config-if)# no shutdown
+R1(config-if)#end
+R1#write memory
+Vérification R1 :
+
+Plaintext
+R1#show ip interface brief
+Interface          IP-Address      OK? Method Status                Protocol
+FastEthernet0/0    192.168.0.1     YES manual up                    up
+FastEthernet1/0    192.168.1.0     YES manual up                    up
+FastEthernet1/1    192.168.5.0     YES manual up                    up
+Serial2/0          192.168.4.0     YES manual up                    up
+Serial2/1          unassigned      YES unset  administratively down down
+Serial2/2          unassigned      YES unset  administratively down down
+Serial2/3          unassigned      YES unset  administratively down down
+GigabitEthernet6/0 unassigned      YES unset  administratively down down
+
+R1#ping 192.168.1.1
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 28/32/40 ms
+
+R1#ping 192.168.4.1
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/28/40 ms
+
+R1#ping 192.168.5.1
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/26/32 ms
+R2
+Plaintext
+R2#enable
+R2#configure terminal
+R2(config)#interface FastEthernet0/0
+R2(config-if)# description Lien1 vers R1 Fa1/0
+R2(config-if)# ip address 192.168.1.1 255.255.255.254
+R2(config-if)# no shutdown
+R2(config-if)#interface FastEthernet1/0
+R2(config-if)# description Lien2 vers R3 Fa1/0
+R2(config-if)# ip address 192.168.2.0 255.255.255.254
+R2(config-if)# no shutdown
+R2(config-if)#end
+R2#write memory
+Vérification R2 :
+
+Plaintext
+R2#show ip interface brief
+Interface          IP-Address      OK? Method Status                Protocol
+FastEthernet0/0    192.168.1.1     YES manual up                    up
+FastEthernet1/0    192.168.2.0     YES manual up                    up
+
+R2#ping 192.168.2.1
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/27/32 ms
+R3
+Plaintext
+R3#configure terminal
+R3(config)#interface FastEthernet0/0
+R3(config-if)# no ip address
+R3(config-if)#interface FastEthernet1/0
+R3(config-if)# no ip address
+R3(config-if)#interface FastEthernet0/0
+R3(config-if)# description Lien3 vers R4 Fa1/0
+R3(config-if)# ip address 192.168.3.0 255.255.255.254
+R3(config-if)#interface FastEthernet1/0
+R3(config-if)# description Lien2 vers R2 Fa1/0
+R3(config-if)# ip address 192.168.2.1 255.255.255.254
+R3(config-if)#end
+Vérification R3 :
+
+Plaintext
+R3#show ip interface brief
+Interface          IP-Address      OK? Method Status                Protocol
+FastEthernet0/0    192.168.2.1     YES manual up                    up
+FastEthernet1/0    192.168.3.0     YES manual up                    up
+
+R3#ping 192.168.3.1
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/28/44 ms
+R4
+Plaintext
+R4#enable
+R4#configure terminal
+R4(config)#interface FastEthernet1/0
+R4(config-if)# description Lien3 vers R3 Fa1/0
+R4(config-if)# ip address 192.168.3.1 255.255.255.254
+R4(config-if)# no shutdown
+R4(config-if)#interface Serial3/0
+R4(config-if)# description Lien4 serie vers R1 Se2/0
+R4(config-if)# ip address 192.168.4.1 255.255.255.254
+R4(config-if)# no shutdown
+R4(config-if)#interface FastEthernet0/0
+R4(config-if)# description Lien6 vers R5 Fa1/0
+R4(config-if)# ip address 192.168.6.1 255.255.255.254
+R4(config-if)# no shutdown
+R4(config-if)#interface FastEthernet2/0
+R4(config-if)# description LAN entrepot vers PC2
+R4(config-if)# ip address 192.168.7.1 255.255.255.0
+R4(config-if)# no shutdown
+R4(config-if)#end
+R4#write memory
+Vérification R4 :
+
+Plaintext
+R4#show ip interface brief
+Interface          IP-Address      OK? Method Status                Protocol
+FastEthernet0/0    192.168.6.1     YES manual up                    up
+FastEthernet1/0    192.168.3.1     YES manual up                    up
+FastEthernet2/0    192.168.7.1     YES manual up                    up
+Serial3/0          192.168.4.1     YES manual up                    up
+Serial3/1          unassigned      YES unset  administratively down down
+Serial3/2          unassigned      YES unset  administratively down down
+Serial3/3          unassigned      YES unset  administratively down down
+R5
+Plaintext
+R5#enable
+R5#configure terminal
+R5(config)#interface FastEthernet0/0
+R5(config-if)# description Lien5 vers R1 Fa1/1
+R5(config-if)# ip address 192.168.5.1 255.255.255.254
+R5(config-if)# no shutdown
+R5(config-if)#interface FastEthernet1/0
+R5(config-if)# description Lien6 vers R4 Fa0/0
+R5(config-if)# ip address 192.168.6.0 255.255.255.254
+R5(config-if)# no shutdown
+R5(config-if)#end
+R5#write memory
+Vérification R5 :
+
+Plaintext
+R5#show ip interface brief
+Interface          IP-Address      OK? Method Status                Protocol
+FastEthernet0/0    192.168.5.1     YES manual up                    up
+FastEthernet1/0    192.168.6.0     YES manual up                    up
+FastEthernet2/0    unassigned      YES unset  administratively down down
+Serial3/0          unassigned      YES unset  administratively down down
+
+R5#ping 192.168.6.1
+!!!!!
+Success rate is 100 percent (5/5), round-trip min/avg/max = 20/27/36 ms
+2. Mise en Place du Nuage / Réseau Simulé
+Simulation du nuage 10.40.10.1 via une interface Loopback0 sur R5 :
+
+Plaintext
+R5#configure terminal
+R5(config)#interface Loopback0
+R5(config-if)# description Nuage simule 10.40.10.1
+R5(config-if)# ip address 10.40.10.1 255.255.255.0
+R5(config-if)# no shutdown
+R5(config-if)#exit
+3. Configuration EIGRP (AS 100)
+Plaintext
+R1:
+router eigrp 100
+ network 192.168.0.0 0.0.0.255
+ network 192.168.1.0 0.0.0.1
+ network 192.168.4.0 0.0.0.1
+ network 192.168.5.0 0.0.0.1
+ no auto-summary
+ passive-interface FastEthernet0/0
+
+R2:
+router eigrp 100
+ network 192.168.1.0 0.0.0.1
+ network 192.168.2.0 0.0.0.1
+ no auto-summary
+
+R3:
+router eigrp 100
+ network 192.168.2.0 0.0.0.1
+ network 192.168.3.0 0.0.0.1
+ no auto-summary
+
+R4:
+router eigrp 100
+ network 192.168.3.0 0.0.0.1
+ network 192.168.4.0 0.0.0.1
+ network 192.168.6.0 0.0.0.1
+ network 192.168.7.0 0.0.0.255
+ no auto-summary
+ passive-interface FastEthernet2/0
+
+R5:
+router eigrp 100
+ network 192.168.5.0 0.0.0.1
+ network 192.168.6.0 0.0.0.1
+ network 10.40.10.0 0.0.0.255
+ no auto-summary
+ passive-interface Loopback0
+Configuration sauvegardée sur chaque routeur via write memory.
+
+Configuration des VPCS
+Plaintext
+PC1> ip 192.168.0.10/24 192.168.0.1
+PC2> ip 192.168.7.10/24 192.168.7.1
+4. Preuves et Validation
+Table de voisinage de R1
+Plaintext
+R1#show ip eigrp neighbors
+EIGRP-IPv4 Neighbors for AS(100)
+H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
+                                                   (sec)         (ms)       Cnt Num
+2   192.168.5.1             Fa1/1                    14 00:03:02   43   258  0  5
+1   192.168.4.1             Se2/0                    11 00:03:14   41   246  0  14
+0   192.168.1.1             Fa1/0                    12 00:03:33   36   216  0  14
+Routes EIGRP apprises par R1
+Plaintext
+R1#show ip route eigrp
+Gateway of last resort is not set
+
+      10.0.0.0/24 is subnetted, 1 subnets
+D        10.40.10.0 [90/156160] via 192.168.5.1, 00:03:14, FastEthernet1/1
+      192.168.2.0/31 is subnetted, 1 subnets
+D        192.168.2.0 [90/30720] via 192.168.1.1, 00:03:31, FastEthernet1/0
+      192.168.3.0/31 is subnetted, 1 subnets
+D        192.168.3.0 [90/33280] via 192.168.5.1, 00:03:14, FastEthernet1/1
+                     [90/33280] via 192.168.1.1, 00:03:14, FastEthernet1/0
+      192.168.6.0/31 is subnetted, 1 subnets
+D        192.168.6.0 [90/30720] via 192.168.5.1, 00:03:19, FastEthernet1/1
+D     192.168.7.0/24 [90/33280] via 192.168.5.1, 00:03:14, FastEthernet1/1
+Pings depuis PC1
+Plaintext
+PC1> ping 192.168.7.10
+84 bytes from 192.168.7.10 icmp_seq=1 ttl=61 time=105.360 ms
+84 bytes from 192.168.7.10 icmp_seq=2 ttl=61 time=91.795 ms
+
+PC1> ping 10.40.10.1
+84 bytes from 10.40.10.1 icmp_seq=1 ttl=254 time=45.645 ms
+84 bytes from 10.40.10.1 icmp_seq=2 ttl=254 time=46.946 ms
+5. Test de Bascule (Failover) de la Liaison R1 ↔ R5
+État avant la coupure (R1) :
+
+Plaintext
+R1#show ip route 192.168.7.0
+Routing entry for 192.168.7.0/24
+  Known via "eigrp 100", distance 90, metric 33280, type internal
+  - 192.168.5.1, from 192.168.5.1, via FastEthernet1/1
+Simulation de la coupure :
+
+Plaintext
+R1#configure terminal
+R1(config)#interface FastEthernet1/1
+R1(config-if)#shutdown
+R1(config-if)#end
+*Oct 12 09:23:50.903: %DUAL-5-NBRCHANGE: EIGRP-IPv4 100: Neighbor 192.168.5.1 (FastEthernet1/1) is down: interface down
+État après la coupure (R1) :
+
+Plaintext
+R1#show ip route 192.168.7.0
+Routing entry for 192.168.7.0/24
+  Known via "eigrp 100", distance 90, metric 2172416, type internal
+  - 192.168.4.1, from 192.168.4.1, via Serial2/0
+Continuité du trafic (Ping continu - Extrait) :
+
+Plaintext
+84 bytes from 192.168.7.10 icmp_seq=17 ttl=61 time=91.336 ms
+192.168.7.10 icmp_seq=18 timeout
+192.168.7.10 icmp_seq=19 timeout
+192.168.7.10 icmp_seq=20 timeout
+192.168.7.10 icmp_seq=21 timeout
+192.168.7.10 icmp_seq=22 timeout
+192.168.7.10 icmp_seq=23 timeout
+84 bytes from 192.168.7.10 icmp_seq=24 ttl=62 time=60.726 ms
+(6 paquets perdus, puis reconvergence automatique via la liaison série).
+
+Rétablissement du lien :
+
+Plaintext
+R1#configure terminal
+R1(config)#interface FastEthernet1/1
+R1(config-if)#no shutdown
+R1(config-if)#end
+Retour immédiat à la route d'origine via R5 (métrique 33280).
+
+6. Rapport Court — CDC 1 : Routage EIGRP
+Choix du chemin (VPC1 → VPC2) :
+Le trafic passe par R5 (R1 → R5 → R4) car c'est le chemin le plus rapide calculé par EIGRP. Les liens sont en FastEthernet et comportent moins de sauts qu'en passant par le haut (R2-R3) ou par la liaison série.
+
+Simulation du nuage :
+Le réseau 10.40.10.0/24 est simulé par une interface Loopback0 sur R5 (10.40.10.1) et annoncé dynamiquement par EIGRP, éliminant tout besoin de routes statiques.
+
+Test de bascule (Failover) :
+La coupure de FastEthernet1/1 sur R1 déclenche la reconvergence DUAL en 2-3 secondes. Le trafic bascule instantanément sur la liaison série de secours avant de revenir automatiquement au rétablissement du lien principal.
+
+Écarts assumés par rapport au schéma :
+Les liens 1 à 3 sont configurés en FastEthernet et non en GigabitEthernet.
+
+Le nuage externe est simulé par une Loopback0 sur R5.
+
+Le câblage physique réel de R3 est inversé par rapport au dessin GNS3 (vérifié par CDP) : R2 Fa1/0 ↔ R3 Fa1/0 (lien 2), R3 Fa0/0 ↔ R4 Fa1/0 (lien 3). Les adresses IP de R3 suivent rigoureusement ce câblage réel.
 <br>
 1. b) Un protocole IP numéro 88<br>
 2. b) Même numéro de système autonome<br>
