@@ -12,7 +12,7 @@ Capture GNS3 de la topologie (les étiquettes de R3 affichées par GNS3 ne corre
 
 Schéma annoté avec le câblage réel, les adresses et les chemins empruntés :
 
-![Schéma annoté du CDC 1](schema-annote.png)
+<img width="1240" height="680" alt="schema-annote" src="https://github.com/user-attachments/assets/956c3d6d-cf54-4049-9c03-ed30339e265d" />
 
 | N° | Liaison | Interfaces réelles | Sous-réseau | Adresses |
 |---|---|---|---|---|
