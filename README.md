@@ -12,7 +12,7 @@ Capture GNS3 de la topologie (les étiquettes de R3 affichées par GNS3 ne corre
 
 Schéma annoté avec le câblage réel, les adresses et les chemins empruntés :
 
-![Schéma annoté du CDC 1](schema-annote.png)
+<img width="1240" height="680" alt="schema-annote (1)" src="https://github.com/user-attachments/assets/ba50b383-4140-4652-8677-6b1033811ea7" />
 
 | N° | Liaison | Interfaces réelles | Sous-réseau | Adresses |
 |---|---|---|---|---|
@@ -545,7 +545,7 @@ Configurations finales du CDC 1, commentées, reprises des `show running-config`
 
 Le CDC 2 s'ajoute au CDC 1 sans le remplacer : l'EIGRP AS 100 reste en place, un VPN IPsec site-à-site relie le siège (R1) à l'entrepôt (R4), et un DMVPN fait de R1 le hub et de R2 à R5 les spokes. Le détail complet des preuves et le rapport de 2 pages sont dans [cdc2/README-CDC2.md](cdc2/README-CDC2.md). Configurations finales commentées, clés masquées : [cdc2/configs/](cdc2/configs/).
 
-![Schéma annoté du CDC 2](cdc2/schema-annote-cdc2.png)
+<img width="1240" height="700" alt="schema-annote-cdc2" src="https://github.com/user-attachments/assets/355e7161-8206-46a1-9279-78205bed3258" />
 
 ### 10.1 Architecture et choix
 
@@ -672,8 +672,8 @@ Type:Spoke, NHRP Peers:2,
 
 Chiffrement du tunnel dynamique : sur R2, les SA vers `172.16.255.3` et `172.16.255.1` utilisent `esp-256-aes esp-sha256-hmac` en mode `Transport`. La capture Wireshark sur le lien R2 ↔ R3, pendant `ping 172.16.0.3 repeat 20` depuis R2, montre 20 paquets ESP de `172.16.255.2` vers `172.16.255.3` (même SPI `0xcdddde9e`, 20 affichés sur 145) et aucun paquet ICMP (0 affiché sur 174) : le trafic part directement de R2 vers R3 et n'est pas lisible.
 
-![ESP, tunnel DMVPN R2 vers R3](preuves/cdc2/03-wireshark-esp-dmvpn-r2-r3.png)
-![ICMP vide, tunnel DMVPN R2 vers R3](preuves/cdc2/04-wireshark-icmp-vide-dmvpn-r2-r3.png)
+<img width="1335" height="830" alt="image" src="https://github.com/user-attachments/assets/9892db69-6e9c-4780-99c7-32d85fa9d8de" />
+<img width="1341" height="827" alt="image" src="https://github.com/user-attachments/assets/ce05b70f-26f3-4a65-9624-ee831e6abc70" />
 
 ### 10.3 Risques restants
 
