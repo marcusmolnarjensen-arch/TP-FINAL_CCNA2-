@@ -1,18 +1,18 @@
-# TP Final CCNA — CDC 1 : routage dynamique EIGRP
+# TP Final CCNA — Infrastructure réseau multisite (CDC 1 : EIGRP, CDC 2 : IPsec et DMVPN)
 
 Infrastructure réseau multisite de Satom IT & Learning Solutions, réalisée sur GNS3 avec cinq routeurs Cisco c7200. Ce CDC 1 configure EIGRP (AS 100) sur les cinq routeurs, vérifie les voisinages et les routes, identifie le chemin entre les sites et démontre le basculement automatique en cas de panne d'un lien.
 
-Tout ce qui est affiché ci-dessous est copié depuis les consoles du lab. Les extraits sont signalés comme tels.
+Tout ce qui est affiché ci-dessous est copié depuis les consoles du lab. Les extraits sont signalés comme tels. Les sections 1 à 9 traitent le CDC 1, la section 10 le CDC 2 et la section 11 le QCM.
 
 ## 1. Topologie réelle et plan d'adressage
 
-Capture GNS3 de la topologie (les étiquettes de R3 affichées par GNS3 ne correspondent pas au câblage réel, voir la section 4.3) :
+Capture GNS3 de la topologie (les étiquettes de R3 affichées par GNS3 ne correspondent pas au câblage réel, voir la section 3.2) :
 
 <img width="1197" height="543" alt="image" src="https://github.com/user-attachments/assets/3b7899be-117a-4326-ace2-93281f6ec303" />
 
 Schéma annoté avec le câblage réel, les adresses et les chemins empruntés :
 
-<img width="1240" height="680" alt="schema-annote" src="https://github.com/user-attachments/assets/956c3d6d-cf54-4049-9c03-ed30339e265d" />
+![Schéma annoté du CDC 1](schema-annote.png)
 
 | N° | Liaison | Interfaces réelles | Sous-réseau | Adresses |
 |---|---|---|---|---|
@@ -72,7 +72,7 @@ interface FastEthernet1/0
  ip address 192.168.2.0 255.255.255.254
  no shutdown
 
-R3 (configuration finale, après correction du câblage, voir 4.3) :
+R3 (configuration finale, après correction du câblage, voir 3.2) :
 interface FastEthernet0/0
  description Lien3 vers R4 Fa1/0
  ip address 192.168.3.0 255.255.255.254
@@ -255,7 +255,58 @@ D     192.168.7.0/24 [90/33280] via 192.168.5.1, 00:03:14, FastEthernet1/1
 
 Les routes `D` couvrent tous les réseaux du plan d'adressage qui ne sont pas directement connectés à R1. Les réseaux connectés à R1 sont `192.168.0.0/24`, `192.168.1.0/31`, `192.168.4.0/31` et `192.168.5.0/31`.
 
-> **À compléter avant le rendu :** coller ici la sortie complète de `show ip route` sur R1 (avec les routes connectées `C` et `L`).
+Table de routage complète de R1, avec les routes connectées (`C` et `L`). Elle a été relevée après la mise en place du CDC 2 : les lignes `172.16.x.x` (`Tunnel0` et `Loopback1`) appartiennent au CDC 2, toutes les autres sont celles du CDC 1, avec les mêmes métriques.
+
+```
+R1#show ip route
+Codes: L - local, C - connected, S - static, R - RIP, M - mobile, B - BGP
+       D - EIGRP, EX - EIGRP external, O - OSPF, IA - OSPF inter area
+       N1 - OSPF NSSA external type 1, N2 - OSPF NSSA external type 2
+       E1 - OSPF external type 1, E2 - OSPF external type 2
+       i - IS-IS, su - IS-IS summary, L1 - IS-IS level-1, L2 - IS-IS level-2
+       ia - IS-IS inter area, * - candidate default, U - per-user static route
+       o - ODR, P - periodic downloaded static route, H - NHRP, l - LISP
+       + - replicated route, % - next hop override
+
+Gateway of last resort is not set
+
+      10.0.0.0/24 is subnetted, 1 subnets
+D        10.40.10.0 [90/156160] via 192.168.5.1, 00:00:24, FastEthernet1/1
+      172.16.0.0/16 is variably subnetted, 7 subnets, 2 masks
+C        172.16.0.0/24 is directly connected, Tunnel0
+L        172.16.0.1/32 is directly connected, Tunnel0
+C        172.16.255.1/32 is directly connected, Loopback1
+D        172.16.255.2/32
+           [90/156160] via 192.168.1.1, 00:00:31, FastEthernet1/0
+D        172.16.255.3/32
+           [90/158720] via 192.168.1.1, 00:00:31, FastEthernet1/0
+D        172.16.255.4/32
+           [90/158720] via 192.168.5.1, 00:00:31, FastEthernet1/1
+D        172.16.255.5/32
+           [90/156160] via 192.168.5.1, 00:00:36, FastEthernet1/1
+      192.168.0.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.0.0/24 is directly connected, FastEthernet0/0
+L        192.168.0.1/32 is directly connected, FastEthernet0/0
+      192.168.1.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.1.0/31 is directly connected, FastEthernet1/0
+L        192.168.1.0/32 is directly connected, FastEthernet1/0
+      192.168.2.0/31 is subnetted, 1 subnets
+D        192.168.2.0 [90/30720] via 192.168.1.1, 00:00:24, FastEthernet1/0
+      192.168.3.0/31 is subnetted, 1 subnets
+D        192.168.3.0 [90/33280] via 192.168.5.1, 00:00:24, FastEthernet1/1
+                     [90/33280] via 192.168.1.1, 00:00:24, FastEthernet1/0
+      192.168.4.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.4.0/31 is directly connected, Serial2/0
+L        192.168.4.0/32 is directly connected, Serial2/0
+      192.168.5.0/24 is variably subnetted, 2 subnets, 2 masks
+C        192.168.5.0/31 is directly connected, FastEthernet1/1
+L        192.168.5.0/32 is directly connected, FastEthernet1/1
+      192.168.6.0/31 is subnetted, 1 subnets
+D        192.168.6.0 [90/30720] via 192.168.5.1, 00:00:24, FastEthernet1/1
+D     192.168.7.0/24 [90/33280] via 192.168.5.1, 00:00:24, FastEthernet1/1
+```
+
+Tous les réseaux du plan d'adressage figurent dans cette table : les quatre réseaux connectés à R1 (`192.168.0.0/24`, `192.168.1.0/31`, `192.168.4.0/31`, `192.168.5.0/31`), et les routes EIGRP vers `192.168.2.0`, `192.168.3.0`, `192.168.6.0`, `192.168.7.0` et `10.40.10.0`. Aucune route statique (`S`) n'apparaît.
 
 Route vers le LAN de l'entrepôt, en détail :
 
@@ -340,7 +391,7 @@ Sending 5, 100-byte ICMP Echos to 10.40.10.1, timeout is 2 seconds:
 Success rate is 100 percent (5/5), round-trip min/avg/max = 24/27/36 ms
 ```
 
-Le TTL de 61 vers PC2 correspond à trois routeurs traversés (R1, R5, R4), donc au chemin nominal par R5. Le TTL de 254 vers `10.40.10.1` correspond à un seul routeur traversé avant d'atteindre la loopback de R5.
+Le TTL de 61 vers PC2 correspond à trois routeurs traversés (R1, R5, R4), donc au chemin nominal par R5. Ces relevés datent d'avant l'IPsec du CDC 2 : depuis, le même ping affiche `ttl=62` (voir la section 10.2). Le TTL de 254 vers `10.40.10.1` correspond à un seul routeur traversé avant d'atteindre la loopback de R5.
 
 ## 7. Test de bascule : coupure de la liaison R1 ↔ R5 (`Fa1/1` de R1)
 
@@ -488,9 +539,150 @@ On a coupé l'interface `Fa1/1` de R1 pendant un ping continu de PC1 vers PC2. R
 
 ## 9. Fichiers de configuration
 
-Configurations finales commentées des cinq routeurs, reprises des `show running-config` : [R1.conf](R1.conf), [R2.conf](R2.conf), [R3.conf](R3.conf), [R4.conf](R4.conf), [R5.conf](R5.conf).
+Configurations finales du CDC 1, commentées, reprises des `show running-config` (celles du CDC 2 sont dans [cdc2/configs/](cdc2/configs/)) : [R1.conf](R1.conf), [R2.conf](R2.conf), [R3.conf](R3.conf), [R4.conf](R4.conf), [R5.conf](R5.conf).
 
-## 10. QCM
+## 10. CDC 2 — IPsec site-à-site et DMVPN
+
+Le CDC 2 s'ajoute au CDC 1 sans le remplacer : l'EIGRP AS 100 reste en place, un VPN IPsec site-à-site relie le siège (R1) à l'entrepôt (R4), et un DMVPN fait de R1 le hub et de R2 à R5 les spokes. Le détail complet des preuves et le rapport de 2 pages sont dans [cdc2/README-CDC2.md](cdc2/README-CDC2.md). Configurations finales commentées, clés masquées : [cdc2/configs/](cdc2/configs/).
+
+![Schéma annoté du CDC 2](cdc2/schema-annote-cdc2.png)
+
+### 10.1 Architecture et choix
+
+| Élément | Valeur |
+|---|---|
+| Sources des tunnels (adresse NBMA) | `Loopback1` : R1 `172.16.255.1`, R2 `.2`, R3 `.3`, R4 `.4`, R5 `.5` (/32), annoncées dans EIGRP AS 100 |
+| Réseau des tunnels DMVPN | `172.16.0.0/24` : `Tunnel0` de R1 en `.1` (hub), de R2 à R5 en `.2` à `.5` (spokes) |
+| IPsec site-à-site | R1 ↔ R4, pairs `172.16.255.1` ↔ `172.16.255.4`, trafic `192.168.0.0/24` ↔ `192.168.7.0/24` |
+
+- **Cryptographie :** IKE version 1, AES-256, SHA-256, Diffie-Hellman groupe 14, clé pré-partagée. Les politiques IKE par défaut de l'IOS (3DES, MD5, groupes de 1024 bits) n'ont pas été retenues.
+- **IPsec site-à-site :** carte de chiffrement en mode tunnel avec PFS groupe 14, posée sur les trois interfaces de sortie de R1 et de R4, pour que le trafic entre les LAN reste chiffré quel que soit le chemin du CDC 1.
+- **DMVPN :** tunnel mGRE avec NHRP, protégé par IPsec en mode transport. `ip nhrp redirect` sur le hub et `ip nhrp shortcut` sur les spokes créent les tunnels directs à la demande.
+- **EIGRP à travers les tunnels :** le même AS 100 passe par `Tunnel0`. `bandwidth 1000` laisse l'underlay préféré, et une `distribute-list` empêche le tunnel d'apprendre les loopbacks qui lui servent de point de départ.
+
+### 10.2 Preuves
+
+IPsec site-à-site (R1) :
+
+```
+R1#show crypto isakmp sa
+IPv4 Crypto ISAKMP SA
+dst             src             state          conn-id status
+172.16.255.4    172.16.255.1    QM_IDLE           1001 ACTIVE
+```
+
+Extrait de `show crypto ipsec sa` sur R1 :
+
+```
+   current_peer 172.16.255.4 port 500
+    #pkts encaps: 9, #pkts encrypt: 9, #pkts digest: 9
+    #pkts decaps: 9, #pkts decrypt: 9, #pkts verify: 9
+     PFS (Y/N): Y, DH group: group14
+        transform: esp-256-aes esp-sha256-hmac ,
+        in use settings ={Tunnel, }
+```
+
+Capture Wireshark sur le lien R5 ↔ R1 pendant un ping de PC1 vers PC2 : paquets ESP entre `172.16.255.1` et `172.16.255.4` (SPI `0xf1855f47` et `0x0c23f806`, ceux de la SA ci-dessus), et aucun paquet avec le filtre `icmp` (0 affiché sur 147).
+
+![ESP, IPsec site-à-site](preuves/cdc2/01-wireshark-esp-ipsec-site2site.png)
+![ICMP vide, IPsec site-à-site](preuves/cdc2/02-wireshark-icmp-vide-ipsec-site2site.png)
+
+Depuis l'IPsec, le ping PC1 → PC2 affiche `ttl=62` au lieu de `ttl=61`. Explication cohérente (pas une preuve directe) : en mode tunnel, le paquet d'origine est encapsulé entre R1 et R4, donc R5 ne décrémente pas son TTL.
+
+DMVPN, état du hub (extrait, légende omise) :
+
+```
+R1#show dmvpn
+Interface: Tunnel0, IPv4 NHRP Details
+Type:Hub, NHRP Peers:4,
+
+ # Ent  Peer NBMA Addr Peer Tunnel Add State  UpDn Tm Attrb
+ ----- --------------- --------------- ----- -------- -----
+     1 172.16.255.2         172.16.0.2    UP 00:01:21     D
+     1 172.16.255.3         172.16.0.3    UP 00:01:09     D
+     1 172.16.255.4         172.16.0.4    UP 00:00:58     D
+     1 172.16.255.5         172.16.0.5    UP 00:00:32     D
+```
+
+EIGRP à travers le tunnel, CDC 1 intact : R1 a gardé ses trois voisins du CDC 1 et en a gagné quatre en `Tu0`, et sa route vers `192.168.7.0` n'a pas changé.
+
+```
+R1#show ip eigrp neighbors
+EIGRP-IPv4 Neighbors for AS(100)
+H   Address                 Interface              Hold Uptime   SRTT   RTO  Q  Seq
+                                                   (sec)         (ms)       Cnt Num
+6   172.16.0.5              Tu0                      11 00:00:36   43   258  0  31
+5   172.16.0.4              Tu0                      11 00:01:03  163   978  0  43
+4   172.16.0.3              Tu0                      11 00:01:13   75   450  0  29
+3   172.16.0.2              Tu0                      12 00:01:26   43   258  0  26
+2   192.168.4.1             Se2/0                    14 00:13:46   39   234  0  39
+1   192.168.5.1             Fa1/1                    10 00:13:47   34   204  0  28
+0   192.168.1.1             Fa1/0                    12 00:13:47  359  2154  0  21
+```
+
+```
+R1#show ip route 192.168.7.0
+  Known via "eigrp 100", distance 90, metric 33280, type internal
+  * 192.168.5.1, from 192.168.5.1, 00:00:45 ago, via FastEthernet1/1
+```
+
+(Extrait : seules les lignes utiles de `show ip route 192.168.7.0` sont reprises, la sortie complète est dans [cdc2/README-CDC2.md](cdc2/README-CDC2.md).)
+
+Tunnel dynamique entre deux spokes (R2 ↔ R3) : après `clear ip nhrp`, R2 ne connaît que le hub. Le premier `traceroute` passe par le hub (deux sauts), le deuxième est direct (un saut).
+
+```
+R2#traceroute 172.16.0.3
+Type escape sequence to abort.
+Tracing the route to 172.16.0.3
+VRF info: (vrf in name/id, vrf out name/id)
+  1 172.16.0.1 80 msec 16 msec 32 msec
+  2 172.16.0.3 88 msec 108 msec 84 msec
+R2#traceroute 172.16.0.3
+Type escape sequence to abort.
+Tracing the route to 172.16.0.3
+VRF info: (vrf in name/id, vrf out name/id)
+  1 172.16.0.3 56 msec 28 msec 28 msec
+```
+
+```
+R2#show ip nhrp
+172.16.0.1/32 via 172.16.0.1
+   Tunnel0 created 00:14:54, never expire
+   Type: static, Flags: used
+   NBMA address: 172.16.255.1
+172.16.0.3/32 via 172.16.0.3
+   Tunnel0 created 00:00:25, expire 01:59:35
+   Type: dynamic, Flags: router used
+   NBMA address: 172.16.255.3
+```
+
+État du DMVPN côté clients une fois le tunnel établi (extraits) :
+
+```
+R2#show dmvpn
+Type:Spoke, NHRP Peers:2,
+     1 172.16.255.1         172.16.0.1    UP 00:07:56     S
+     1 172.16.255.3         172.16.0.3    UP 00:01:44     D
+
+R3#show dmvpn
+Type:Spoke, NHRP Peers:2,
+     1 172.16.255.1         172.16.0.1    UP 00:07:48     S
+     1 172.16.255.2         172.16.0.2    UP 00:01:47     D
+```
+
+Chiffrement du tunnel dynamique : sur R2, les SA vers `172.16.255.3` et `172.16.255.1` utilisent `esp-256-aes esp-sha256-hmac` en mode `Transport`. La capture Wireshark sur le lien R2 ↔ R3, pendant `ping 172.16.0.3 repeat 20` depuis R2, montre 20 paquets ESP de `172.16.255.2` vers `172.16.255.3` (même SPI `0xcdddde9e`, 20 affichés sur 145) et aucun paquet ICMP (0 affiché sur 174) : le trafic part directement de R2 vers R3 et n'est pas lisible.
+
+![ESP, tunnel DMVPN R2 vers R3](preuves/cdc2/03-wireshark-esp-dmvpn-r2-r3.png)
+![ICMP vide, tunnel DMVPN R2 vers R3](preuves/cdc2/04-wireshark-icmp-vide-dmvpn-r2-r3.png)
+
+### 10.3 Risques restants
+
+- **Clé pré-partagée commune** à tous les pairs du DMVPN : la compromission d'un spoke compromet tous les tunnels. Elle apparaît en clair dans le `show running-config` : elle est masquée dans les fichiers publiés, et des certificats seraient préférables en production.
+- **Hub unique :** R1 est le seul serveur NHRP. Ce risque se déduit de l'architecture, il n'a pas été testé dans ce lab.
+- **Métadonnées visibles :** les adresses des extrémités, les SPI, la taille et le rythme des paquets ne sont pas protégés.
+- **Pas d'authentification EIGRP**, visible dans les `show running-config`.
+
+## 11. QCM
 
 Réponses de l'étudiant (l'énoncé des questions n'est pas reproduit ici) :
 
