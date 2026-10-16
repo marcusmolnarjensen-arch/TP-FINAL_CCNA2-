@@ -584,8 +584,8 @@ Extrait de `show crypto ipsec sa` sur R1 :
 
 Capture Wireshark sur le lien R5 ↔ R1 pendant un ping de PC1 vers PC2 : paquets ESP entre `172.16.255.1` et `172.16.255.4` (SPI `0xf1855f47` et `0x0c23f806`, ceux de la SA ci-dessus), et aucun paquet avec le filtre `icmp` (0 affiché sur 147).
 
-![ESP, IPsec site-à-site](preuves/cdc2/01-wireshark-esp-ipsec-site2site.png)
-![ICMP vide, IPsec site-à-site](preuves/cdc2/02-wireshark-icmp-vide-ipsec-site2site.png)
+<img width="1335" height="830" alt="image" src="https://github.com/user-attachments/assets/756d014b-ebf5-400a-99dd-3a83db7106d3" />
+<img width="1337" height="828" alt="image" src="https://github.com/user-attachments/assets/c1c4597c-2796-4834-bda9-a1f7e2605a25" />
 
 Depuis l'IPsec, le ping PC1 → PC2 affiche `ttl=62` au lieu de `ttl=61`. Explication cohérente (pas une preuve directe) : en mode tunnel, le paquet d'origine est encapsulé entre R1 et R4, donc R5 ne décrémente pas son TTL.
 
